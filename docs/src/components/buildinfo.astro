@@ -1,26 +1,32 @@
----
 import { Code } from "@astrojs/starlight/components";
-// 这里只放静态的元数据，避免执行代码
-title: "qBittorrent Dependency Versions"
----
+const response = await fetch(
+	"https://github.com/userdocs/qbt-workflow-files/releases/latest/download/dependency-version.json"
+);
 
-<!-- 下面是页面主体部分，包含 JS 代码 -->
-<script type="module">
-  const response = await fetch(
-    "https://github.com/userdocs/qbt-workflow-files/releases/latest/download/dependency-version.json"
-  );
+const data = await response.json();
 
-  const data = await response.json();
-
-  const codeblock = `qBittorrent ${data.qbittorrent || "4.6.3"} was built with the following libraries:
+const codeblock = qBittorrent ${data.qbittorrent || "4.6.3"} was built with the following libraries:
 Qt: ${data.qt6 || "6.6.2"}
 Libtorrent: ${data.libtorrent_2_0 || "2.0.10"}
 Boost: ${data.boost || "1.84.0"}
 OpenSSL: ${data.openssl || "3.2.1"}
-zlib: ${data.zlib || "1.3.2"}.zlib-ng`;
+zlib: ${data.zlib || "1.3.2"}.zlib-ng;
 
-  // 将代码块内容传递给 Code 组件
-  document.getElementById("codeblock").textContent = codeblock;
-</script>
+// {
+//   "glibc_2_31": "2.31",
+//   "glibc_2_38": "2.38",
+//   "zlib": "1.3.1",
+//   "iconv": "1.17",
+//   "icu": "74-2",
+//   "openssl": "3.2.1",
+//   "boost": "1.84.0",
+//   "libtorrent_1_2": "1.2.19",
+//   "libtorrent_2_0": "2.0.10",
+//   "double_conversion": "3.3.0",
+//   "qt5": "5.15.13",
+//   "qt6": "6.6.2",
+//   "qbittorrent": "4.6.3"
+// }
+---
 
-<pre id="codeblock"></pre>
+<Code code={codeblock} lang="plaintext" />
