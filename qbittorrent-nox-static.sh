@@ -19,7 +19,7 @@
 #################################################################################################################################################
 # Script version = Major minor patch
 #################################################################################################################################################
-script_version="2.0.11"
+script_version="2.0.12"
 #################################################################################################################################################
 # Set some script features - https://www.gnu.org/software/bash/manual/html_node/The-Set-Builtin.html
 #################################################################################################################################################
@@ -176,7 +176,11 @@ _set_default_values() {
 	qbt_skip_icu="${qbt_skip_icu:-yes}"
 
 	# Env setting for the boost tag
-	qbt_boost_tag="${qbt_boost_tag:-}"
+	if [[ "${qbt_libtorrent_version}" == "1.2" ]]; then
+		qbt_boost_tag="${qbt_boost_tag:-boost-1.86.0}"
+	else
+		qbt_boost_tag="${qbt_boost_tag:-}"
+	fi
 
 	# Env setting for the libtorrent tag
 	qbt_libtorrent_tag="${qbt_libtorrent_tag:-}"
@@ -492,7 +496,7 @@ _qbittorrent_build_cons() {
 _set_build_cons() {
 	if [[ $(_qbittorrent_build_cons) == "yes" && "${qbt_qt_version}" == "5" ]]; then
 		printf '\n%b\n\n' " ${text_blink}${unicode_red_light_circle}${color_end} ${color_yellow}qBittorrent ${color_magenta}${github_tag[qbittorrent]}${color_yellow} does not support ${color_red}Qt5${color_yellow}. Please use ${color_green}Qt6${color_yellow} or a qBittorrent ${color_green}v4${color_yellow} tag.${color_end}"
-		if [[ -d "${release_info_dir}" ]]; then touch "${release_info_dir}/disable-qt5"; fi # qbittorrent v5 transtion - workflow specific
+		if [[ -d "${release_info_dir}" ]]; then touch "${release_info_dir}/disable-qt5"; fi # qbittorrent v5 transition - workflow specific
 		exit                                                                                # non error exit to not upset github actions - just skip the step
 	fi
 }
