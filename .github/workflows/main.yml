@@ -1,53 +1,47 @@
-# .github/workflows/build-mipsel.yml
-name: Build qbittorrent-nox for JDCloud RE-SP-01B (mipsel)
+# .github/workflows/build-mipsel-latest.yml
+name: 🚀 Build qbittorrent-nox for JDCloud RE-SP-01B (mipsel) - LATEST VERSIONS
 
 on:
-  # 手动触发编译
+  # 允许手动触发
   workflow_dispatch:
-    inputs:
-      libtorrent_version:
-        description: 'Libtorrent version (1.2 or 2.0)'
-        required: true
-        default: '2.0'
-      qbittorrent_tag:
-        description: 'qBittorrent tag (e.g., release-4.6.4, v4.6.4)'
-        required: false
-        default: ''
+    # 不需要任何输入参数，脚本会自动选择最新版本
+    inputs: {}
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      # 1. 检出代码
-      - name: Checkout Repository
+      # 1. 检出你 Fork 的仓库代码
+      - name: 🔍 Checkout Repository
         uses: actions/checkout@v4
 
-      # 2. 设置权限 (可选，但推荐)
-      - name: Grant execute permission
+      # 2. 赋予脚本执行权限
+      - name: ⚙️ Grant execute permission
         run: chmod +x qbittorrent-nox-static.sh
 
       # 3. 核心编译步骤
-      #    使用 -ma mipsel 参数指定目标架构
-      #    使用 -lt 参数指定 libtorrent 版本 (1.2 或 2.0)
-      #    使用 -qt 参数指定 qBittorrent 版本 (可选)
-      - name: Compile qbittorrent-nox-static for mipsel
+      #    -ma mipsel: 指定目标架构为 mipsel (JDCloud 路由器)
+      #    不传递 -lt 或 -qt 参数，让脚本自动选择最新稳定版
+      - name: 🛠️ Compile qbittorrent-nox-static for mipsel (Latest Versions)
         run: |
-          ./qbittorrent-nox-static.sh all -ma mipsel \
-            -lt "v${{ inputs.libtorrent_version }}.x" \
-            ${{ inputs.qbittorrent_tag && format('-qt {0}', inputs.qbittorrent_tag) || '' }}
+          # 设置环境变量，跳过 ICU 以减小最终文件体积（可选）
+          export qbt_skip_icu="yes"
+          # 开始编译
+          ./qbittorrent-nox-static.sh all -ma mipsel
 
-      # 4. 上传编译好的二进制文件作为 Artifact
-      - name: Upload Artifact
+      # 4. 上传编译好的二进制文件
+      - name: 📤 Upload Artifact (qbittorrent-nox binary)
         uses: actions/upload-artifact@v4
         with:
-          name: qbittorrent-nox-mipsel
+          name: qbittorrent-nox-mipsel-latest
           path: qbt-build/completed/qbittorrent-nox
-          retention-days: 5 # 保留5天，足够你下载
+          retention-days: 5 # 保留5天
 
-      # 5. (可选) 上传整个构建目录用于调试
-      # - name: Upload Full Build Directory (Debug)
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: full-build-dir-mipsel
-      #     path: qbt-build/
-      #     retention-days: 2
+      # 5. (可选) 上传完整日志用于调试
+      - name: 📋 Upload Full Build Logs (Debug)
+        if: failure() # 仅在编译失败时上传
+        uses: actions/upload-artifact@v4
+        with:
+          name: full-build-logs-mipsel
+          path: qbt-build/logs/
+          retention-days: 2
